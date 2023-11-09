@@ -1,0 +1,16 @@
+---
+- hosts: windows
+  tasks:
+  - name: Instalacja Aplikacji
+    win_package:
+      path: C:\MSI\7z1900-x64.msi
+      state: present
+  - name: Kopiowanie Pliku
+    win_copy:
+      src: /usr/kurs/files/config.zip
+      dest: C:\tajne\
+  - name: Rozpakowanie
+    community.windows.win_unzip:
+      src: C:\tajne\config.zip
+      dest: C:\tajne\
+      delete_archive: yes

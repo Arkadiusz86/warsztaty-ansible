@@ -1,0 +1,6 @@
+- hosts: windows
+  tasks:
+    - name: Kopiowanie Pliku
+      win_copy:
+        src: /usr/kurs/files/plikwindows.txt
+        dest: C:\

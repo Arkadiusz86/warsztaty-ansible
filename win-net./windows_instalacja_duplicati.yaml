@@ -1,0 +1,7 @@
+- hosts: windows
+  tasks:
+  - name: Zainstaluj duplicati
+    win_package:
+      path: https://github.com/duplicati/duplicati/releases/download/v2.0.6.104-2.0.6.104_canary_2022-06-15/duplicati-2.0.6.104_canary_2022-06-15-x64.msi
+      creates_path: C:\Duplicati\
+      state: present

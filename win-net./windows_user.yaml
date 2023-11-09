@@ -1,0 +1,15 @@
+---
+- name: stwórz uzytkownika
+  hosts: windows
+  vars:
+    usr_name: 'mietek'
+    usr_password: 'Superhaslo5'
+    usr_groups: "Users"
+  tasks:
+    - name: dodaj uzytkownika
+      ansible.windows.win_user:
+        name: "{{ usr_name }}"
+        password: "{{ usr_password }}"
+        groups: "{{ usr_groups }}"
+        update_password: on_create
+        password_expired: true

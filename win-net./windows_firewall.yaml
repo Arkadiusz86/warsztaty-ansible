@@ -1,0 +1,11 @@
+- hosts: windows
+  tasks:
+  - name: Ustaw regułę
+    win_firewall_rule:
+      name: tajne_porty
+      localport: 7000-7005
+      action: block
+      direction: in
+      protocol: tcp
+      state: present
+      enabled: yes
