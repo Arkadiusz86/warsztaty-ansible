@@ -1,0 +1,11 @@
+---
+- hosts: mikrotik
+  tasks:
+  - name: Wyswietl statystyki
+    routeros_command:
+      commands: interface print stats
+    register: statystyki
+
+  - name: Wyswietl statystyki
+    debug:
+      var: statystyki
