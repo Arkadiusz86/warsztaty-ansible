@@ -1,0 +1,8 @@
+---
+  - hosts: agent1
+    become: True
+    tasks:
+      - name: Usuń ftp
+        dnf:
+         name: vsftpd
+         state: removed

@@ -1,0 +1,83 @@
+---
+- hosts: agent2
+
+  vars:
+    mysql_root_password: Parasolka5
+
+  tasks:
+    ##### Instalacja komponentów serwera www
+    - name: Instalacja WWW
+      dnf:
+        name:
+        - httpd
+        - mysql-server
+        - php
+        - php-fpm
+        - php-cli
+        - php-json
+        - php-gd
+        - php-mbstring
+        - php-pdo
+        - php-xml
+        - php-mysqlnd
+        - python3-pip
+        state: present
+    #### Teraz kopiujemy plik konfiguracyjny z /root/http_projekt/
+    ##### W pliku zmodyfikowano linię "AddType text/html" na  "AddType text/html .php .phps"
+    #### Dodaje to obsługę PHP do Apache
+
+    - name: Kopiowanie pliku konfiguracja.conf
+      ansible.builtin.copy:
+        src: /root/http_projekt/httpd.conf
+        dest: /etc/httpd/conf/
+        ##### Restart Apache
+    - name: Restart usługi Apache
+      ansible.builtin.systemd:
+        state: restarted
+        name: httpd
+     ##### Odblokowanie portu
+    - name: Odblokuj port na RHEL
+      ansible.posix.firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+    - name: Przeładuj firewalld
+      systemd:
+        name: firewalld
+        state: reloaded
+      ##### Uruchomienie usługi mysql
+    - name: Włącz mysql
+      service: name=mysqld state=started enabled=yes
+      become: yes
+    - name: Instaluj PyMySQL
+      ansible.builtin.command: pip3 install PyMySQL
+    - name: Zaktualizuj dane konta
+      no_log: false
+      mysql_user:
+        name: root
+        host: "{{ item }}"
+        password: "{{ mysql_root_password }}"
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        check_implicit_admin: yes
+        priv: "*.*:ALL,GRANT"
+      with_items:
+      - "{{ ansible_hostname }}"
+      - 127.0.0.1
+      - ::1
+      - localhost
+    - name: Stwórz nową bazę
+      mysql_db: name=matrix state=present login_user=root login_password="{{ mysql_root_password }}"
+    - name: Skopiuj schemat # importuję bazę umieszczoną w  /root/bazadanych/matrix.sql z kontrolera Ansible
+      copy: src=/root/bazadanych/matrix.sql dest=/tmp/matrix.sql
+    - name: Umieść przykładowe dane w bazie
+      no_log: false
+      mysql_db: name=matrix state=import target=/tmp/matrix.sql login_user=root login_password="{{ mysql_root_password }}"
+    - name: Kopiowanie Apki
+      ansible.builtin.copy:
+        src: /root/http_projekt/index.php
+        dest: /var/www/html/
+      #pokaż mysql -u root -p
+#show databases;
+#show tables from matrix;
+#select * from matrix.warsztaty;

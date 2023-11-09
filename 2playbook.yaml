@@ -1,0 +1,8 @@
+---
+  - hosts: agent1
+    become: True
+    tasks:
+      - name: uruchom gdy nie działa
+        service:
+         name: vsftpd
+         state: started
